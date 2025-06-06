@@ -17,8 +17,11 @@ class ComicController extends Controller
      */
     public function index(): View // <-- Anda juga bisa menambahkan ini (PHP 7.4+)
     {
-        $comics = Comic::orderBy('created_at', 'desc')->get();
-        return view('comics.index', compact('comics'));
+       // Pastikan menggunakan paginate() bukan get()
+    $comics = Comic::orderBy('created_at', 'desc')
+                   ->paginate(12); // Menggunakan paginate
+    // dd($comics); // Untuk debugging, bisa di-uncomment sementara
+    return view('comics.index', compact('comics'));
     }
 
     /**
@@ -44,7 +47,7 @@ class ComicController extends Controller
             'author' => 'required|string|max:255',
             'publisher' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'stock' => 'required|integer|min:0',
+            'status' => 'required|string|in:Ongoing,Completed,Hiatus', // <--- VALIDASI UNTUK STATUS
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -56,7 +59,7 @@ class ComicController extends Controller
         Comic::create($validatedData);
 
         return redirect()->route('comics.index')
-                         ->with('success', 'Komik berhasil ditambahkan!');
+            ->with('success', 'Komik berhasil ditambahkan!');
     }
 
     /**
@@ -95,7 +98,7 @@ class ComicController extends Controller
             'author' => 'required|string|max:255',
             'publisher' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'stock' => 'required|integer|min:0',
+            'status' => 'required|string|in:Ongoing,Completed,Hiatus', // <--- VALIDASI UNTUK STATUS (bukan stock)
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -110,7 +113,7 @@ class ComicController extends Controller
         $comic->update($validatedData);
 
         return redirect()->route('comics.index')
-                         ->with('success', 'Data komik berhasil diperbarui!');
+            ->with('success', 'Data komik berhasil diperbarui!');
     }
 
     /**
@@ -128,6 +131,6 @@ class ComicController extends Controller
         $comic->delete();
 
         return redirect()->route('comics.index')
-                         ->with('success', 'Komik berhasil dihapus!');
+            ->with('success', 'Komik berhasil dihapus!');
     }
 }

@@ -3,10 +3,17 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ComicController;
+use App\Http\Controllers\ChapterController;
+use App\Models\Comic; // <-- Import model Comic
 
 
 Route::get('/', function () {
-    return view('welcome');
+    // Ambil beberapa komik untuk ditampilkan, misalnya 4 komik terbaru
+    $featuredComics = Comic::orderBy('created_at', 'desc')->take(4)->get();
+
+    return view('welcome', [
+        'featuredComics' => $featuredComics
+    ]);
 });
 
 Route::get('/dashboard', function () {
@@ -30,6 +37,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/comics/{comic}/edit', [ComicController::class, 'edit'])->name('comics.edit');
     Route::put('/comics/{comic}', [ComicController::class, 'update'])->name('comics.update');    // atau Route::patch
     Route::delete('/comics/{comic}', [ComicController::class, 'destroy'])->name('comics.destroy');
+
+
+     Route::get('/comics/{comic}/chapters/create', [ChapterController::class, 'create'])->name('chapters.create');
+    // Route untuk menyimpan chapter baru untuk komik tertentu
+    Route::post('/comics/{comic}/chapters', [ChapterController::class, 'store'])->name('chapters.store');
+
 });
 
 require __DIR__.'/auth.php';

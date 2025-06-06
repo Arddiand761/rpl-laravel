@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('publisher')->nullable(); // Penerbit (opsional)
             $table->text('description')->nullable(); // Deskripsi (opsional)
             $table->string('cover_image')->nullable(); // Path atau nama file gambar sampul (opsional)
-            $table->integer('stock')->default(0); // Jumlah stok
+            $table->string('status')->default('Ongoing')->after('description'); // Contoh: Ongoing, Completed, Hiatus
+            $table->integer('chapter');
             $table->timestamps();
         });
     }
@@ -28,6 +29,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('comics');
+        Schema::table('comics', function (Blueprint $table) {
+            $table->integer('stock')->default(0)->after('description');
+            $table->dropColumn('status');
+        });
     }
 };
